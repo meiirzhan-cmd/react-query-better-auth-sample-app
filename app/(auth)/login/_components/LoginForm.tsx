@@ -61,6 +61,7 @@ export function LoginForm({
                 <Input
                   id="email"
                   type="email"
+                  name="email"
                   placeholder="m@example.com"
                   required
                 />
@@ -74,7 +75,7 @@ export function LoginForm({
                 <div className="flex items-center">
                   <FieldLabel htmlFor="password">Password</FieldLabel>
                 </div>
-                <Input id="password" type="password" required />
+                <Input id="password" type="password" name="password" required />
                 {state?.errors?.password && (
                   <p className="text-sm text-red-500">
                     {state?.errors.password[0]}

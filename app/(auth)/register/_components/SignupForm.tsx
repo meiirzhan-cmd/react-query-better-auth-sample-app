@@ -18,8 +18,6 @@ import { Input } from "@/components/ui/input";
 import { useRouter } from "next/navigation";
 import { useActionState, useEffect, useState } from "react";
 import register from "../action";
-import FormErrors from "@/components/custom-ui/FormErrors";
-import SuccessMessage from "@/components/custom-ui/SuccessMessage";
 
 export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
   const [name, setName] = useState("");
@@ -102,15 +100,6 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
                 </p>
               )}
             </Field>
-            {state && "formErrors" in state && state.formErrors && (
-              <FormErrors errors={state.formErrors} />
-            )}
-
-            {state && "success" in state && state.success && (
-              <SuccessMessage
-                message={`Successfully signed up! Welcome ${state.user?.name}!`}
-              />
-            )}
             <FieldGroup>
               <Field>
                 <Button type="submit" disabled={isPending}>

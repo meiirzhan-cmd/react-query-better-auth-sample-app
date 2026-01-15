@@ -1,14 +1,17 @@
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
+import { nextCookies } from "better-auth/next-js";
 import { db } from "./libsql";
+import * as schema from "../auth-schema";
 
 export const auth = betterAuth({
   database: drizzleAdapter(db, {
     provider: "sqlite",
+    schema,
   }),
   emailAndPassword: {
     enabled: true,
-    autoSignIn: false, //default to true
+    autoSignIn: false, // if you don't want automatic sign-in after registration
   },
   socialProviders: {
     github: {
@@ -16,4 +19,15 @@ export const auth = betterAuth({
       clientSecret: process.env.GITHUB_CLIENT_SECRET as string,
     },
   },
+  session: {
+    expiresIn: 60 * 60 * 24 * 7, // 7 days
+    updateAge: 60 * 60 * 24, // 1 day - session expiration is updated daily
+    cookieCache: {
+      enabled: true,
+      maxAge: 5 * 60, // 5 minutes - reduces database calls
+    },
+  },
+  plugins: [
+    nextCookies(), // handles cookies automatically in server actions
+  ],
 });
