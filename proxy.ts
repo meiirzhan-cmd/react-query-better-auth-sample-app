@@ -3,7 +3,7 @@ import type { NextRequest } from "next/server";
 import { getSessionCookie } from "better-auth/cookies";
 
 // Routes that require authentication
-const protectedRoutes = ["/dashboard"];
+const protectedRoutes = ["/inbox"];
 
 // Routes accessible only to non-authenticated users
 const authRoutes = ["/login", "/register"];
@@ -33,7 +33,7 @@ export default async function proxy(request: NextRequest) {
 
   // Redirect authenticated users from auth routes to dashboard
   if (isAuthRoute && sessionCookie) {
-    return NextResponse.redirect(new URL("/dashboard", request.url));
+    return NextResponse.redirect(new URL("/inbox", request.url));
   }
 
   return NextResponse.next();

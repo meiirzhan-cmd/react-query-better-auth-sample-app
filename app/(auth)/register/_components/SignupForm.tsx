@@ -27,7 +27,7 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
 
   useEffect(() => {
     if (state?.success) {
-      router.push("/dashboard");
+      router.push("/inbox");
     }
   }, [state?.success, router]);
 
