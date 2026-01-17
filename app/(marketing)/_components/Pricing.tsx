@@ -4,69 +4,10 @@ import { motion, useInView } from "motion/react";
 import { useRef } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { Check, X, Sparkles, Zap, Building2 } from "lucide-react";
+import { Check, X, Sparkles, Building2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { itemVariants } from "../motion";
-
-const plans = [
-  {
-    name: "Free",
-    description: "Perfect for trying out Inbox Zero",
-    price: "$0",
-    period: "forever",
-    icon: Sparkles,
-    gradient: "from-zinc-500 to-zinc-600",
-    features: [
-      { text: "1 email account", included: true },
-      { text: "10 AI summaries/day", included: true },
-      { text: "5 AI reply drafts/day", included: true },
-      { text: "3 custom labels", included: true },
-      { text: "Daily digest", included: false },
-      { text: "Priority support", included: false },
-    ],
-    cta: "Get Started",
-    ctaVariant: "outline" as const,
-    popular: false,
-  },
-  {
-    name: "Pro",
-    description: "For professionals who want inbox mastery",
-    price: "$9",
-    period: "per month",
-    icon: Zap,
-    gradient: "from-violet-600 to-blue-600",
-    features: [
-      { text: "3 email accounts", included: true },
-      { text: "Unlimited AI summaries", included: true },
-      { text: "Unlimited AI reply drafts", included: true },
-      { text: "Unlimited custom labels", included: true },
-      { text: "Daily digest", included: true },
-      { text: "Priority support", included: false },
-    ],
-    cta: "Start Free Trial",
-    ctaVariant: "default" as const,
-    popular: true,
-  },
-  {
-    name: "Team",
-    description: "For teams that collaborate on email",
-    price: "$29",
-    period: "per month",
-    icon: Building2,
-    gradient: "from-emerald-500 to-teal-600",
-    features: [
-      { text: "10 email accounts", included: true },
-      { text: "Unlimited AI features", included: true },
-      { text: "Team sharing", included: true },
-      { text: "5 team members", included: true },
-      { text: "Daily digest", included: true },
-      { text: "Priority support", included: true },
-    ],
-    cta: "Contact Sales",
-    ctaVariant: "outline" as const,
-    popular: false,
-  },
-];
+import { plans } from "../data";
 
 const containerVariants = {
   hidden: { opacity: 0 },

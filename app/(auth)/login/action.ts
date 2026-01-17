@@ -4,10 +4,11 @@ import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { APIError } from "better-auth/api";
 import { FormStateLogin, LoginFormSchema } from "@/lib/zod/definitions-login";
+import z from "zod";
 
 export default async function login(
   _prevState: FormStateLogin,
-  formData: FormData
+  formData: FormData,
 ): Promise<FormStateLogin> {
   // 1. Validate form fields
   const validatedFields = LoginFormSchema.safeParse({
@@ -16,9 +17,11 @@ export default async function login(
   });
 
   if (!validatedFields.success) {
+    const flattened = z.flattenError(validatedFields.error);
+
     return {
-      errors: validatedFields.error.flatten().fieldErrors,
-      formErrors: [],
+      errors: flattened.fieldErrors,
+      formErrors: flattened.formErrors,
     };
   }
 

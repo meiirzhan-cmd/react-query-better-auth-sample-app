@@ -4,63 +4,8 @@ import { motion, useInView } from "motion/react";
 import { useRef } from "react";
 import { Star, Quote } from "lucide-react";
 import { itemVariants } from "../motion";
-
-const testimonials = [
-  {
-    content:
-      "Inbox Zero has completely transformed how I manage email. I used to spend 2 hours a day in my inbox, now it's down to 30 minutes. The AI summaries are incredibly accurate.",
-    author: "Sarah Chen",
-    role: "Product Manager at TechCorp",
-    avatar: "SC",
-    rating: 5,
-    gradient: "from-violet-500 to-purple-500",
-  },
-  {
-    content:
-      "The daily digest feature alone is worth it. I start each morning knowing exactly what needs my attention. It's like having a personal email assistant.",
-    author: "Michael Torres",
-    role: "Startup Founder",
-    avatar: "MT",
-    rating: 5,
-    gradient: "from-blue-500 to-cyan-500",
-  },
-  {
-    content:
-      "I was skeptical about AI categorization, but it's surprisingly good at knowing what's urgent vs what can wait. Saved my sanity during launch week.",
-    author: "Emily Watson",
-    role: "Engineering Lead",
-    avatar: "EW",
-    rating: 5,
-    gradient: "from-emerald-500 to-teal-500",
-  },
-  {
-    content:
-      "Finally, a tool that understands context. It knows which newsletters I actually read and which are just noise. My inbox has never been cleaner.",
-    author: "David Kim",
-    role: "Marketing Director",
-    avatar: "DK",
-    rating: 5,
-    gradient: "from-amber-500 to-orange-500",
-  },
-  {
-    content:
-      "The smart labeling is a game-changer for our support team. We can prioritize customer emails instantly without manual triage.",
-    author: "Lisa Park",
-    role: "Customer Success Manager",
-    avatar: "LP",
-    rating: 5,
-    gradient: "from-pink-500 to-rose-500",
-  },
-  {
-    content:
-      "I've tried every email productivity tool out there. This is the first one that actually delivers on its promises. Worth every penny.",
-    author: "James Miller",
-    role: "Consultant",
-    avatar: "JM",
-    rating: 5,
-    gradient: "from-indigo-500 to-violet-500",
-  },
-];
+import { testimonials } from "../data";
+import CompleteSign from "../svg/CompleteSign";
 
 const stats = [
   { value: "50%", label: "Less time in email" },
@@ -202,17 +147,7 @@ export function Testimonials() {
                 Start Free Trial
               </a>
               <div className="flex items-center gap-2 text-sm text-violet-200">
-                <svg
-                  className="h-5 w-5"
-                  fill="currentColor"
-                  viewBox="0 0 20 20"
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                    clipRule="evenodd"
-                  />
-                </svg>
+                <CompleteSign />
                 No credit card required
               </div>
             </div>

@@ -16,9 +16,11 @@ import {
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
-import { useActionState, useEffect } from "react";
+import { useActionState, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import login from "../action";
+import { authClient } from "@/lib/auth-client";
+import GoogleIcon from "@/components/svg/GoogleIcon";
 
 export function LoginForm({
   className,
@@ -28,6 +30,7 @@ export function LoginForm({
     errors: {},
     formErrors: [],
   });
+  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -35,6 +38,19 @@ export function LoginForm({
       router.push("/inbox");
     }
   }, [state?.success, router]);
+
+  const handleGoogleSignIn = async () => {
+    setIsGoogleLoading(true);
+    try {
+      await authClient.signIn.social({
+        provider: "google",
+        callbackURL: "/inbox",
+      });
+    } catch (error) {
+      console.error("Google sign-in error:", error);
+      setIsGoogleLoading(false);
+    }
+  };
 
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
@@ -46,52 +62,88 @@ export function LoginForm({
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <form action={formAction}>
-            <FieldGroup>
-              {/* Display form-level errors */}
-              {state?.formErrors && state?.formErrors.length > 0 && (
-                <div className="text-sm text-red-500">
-                  {state?.formErrors.map((error) => (
-                    <p key={error}>{error}</p>
-                  ))}
-                </div>
+          <div className="flex flex-col gap-6">
+            {/* Google Sign In Button */}
+            <Button
+              type="button"
+              variant="outline"
+              className="w-full cursor-pointer"
+              onClick={handleGoogleSignIn}
+              disabled={isGoogleLoading}
+            >
+              {isGoogleLoading ? (
+                "Connecting..."
+              ) : (
+                <>
+                  <GoogleIcon />
+                  Continue with Google
+                </>
               )}
-              <Field>
-                <FieldLabel htmlFor="email">Email</FieldLabel>
-                <Input
-                  id="email"
-                  type="email"
-                  name="email"
-                  placeholder="m@example.com"
-                  required
-                />
-                {state?.errors?.email && (
-                  <p className="text-sm text-red-500">
-                    {state?.errors.email[0]}
-                  </p>
+            </Button>
+
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center">
+                <span className="w-full border-t" />
+              </div>
+              <div className="relative flex justify-center text-xs uppercase">
+                <span className="bg-card px-2 text-muted-foreground">
+                  Or continue with email
+                </span>
+              </div>
+            </div>
+
+            <form action={formAction}>
+              <FieldGroup>
+                {/* Display form-level errors */}
+                {state?.formErrors && state?.formErrors.length > 0 && (
+                  <div className="text-sm text-red-500">
+                    {state?.formErrors.map((error) => (
+                      <p key={error}>{error}</p>
+                    ))}
+                  </div>
                 )}
-              </Field>
-              <Field>
-                <div className="flex items-center">
-                  <FieldLabel htmlFor="password">Password</FieldLabel>
-                </div>
-                <Input id="password" type="password" name="password" required />
-                {state?.errors?.password && (
-                  <p className="text-sm text-red-500">
-                    {state?.errors.password[0]}
-                  </p>
-                )}
-              </Field>
-              <Field>
-                <Button type="submit" disabled={isPending}>
-                  {isPending ? "Logging in..." : "Login"}
-                </Button>
-                <FieldDescription className="text-center">
-                  Don&apos;t have an account? <a href="/register">Sign up</a>
-                </FieldDescription>
-              </Field>
-            </FieldGroup>
-          </form>
+                <Field>
+                  <FieldLabel htmlFor="email">Email</FieldLabel>
+                  <Input
+                    id="email"
+                    type="email"
+                    name="email"
+                    placeholder="m@example.com"
+                    required
+                  />
+                  {state?.errors?.email && (
+                    <p className="text-sm text-red-500">
+                      {state?.errors.email[0]}
+                    </p>
+                  )}
+                </Field>
+                <Field>
+                  <div className="flex items-center">
+                    <FieldLabel htmlFor="password">Password</FieldLabel>
+                  </div>
+                  <Input
+                    id="password"
+                    type="password"
+                    name="password"
+                    required
+                  />
+                  {state?.errors?.password && (
+                    <p className="text-sm text-red-500">
+                      {state?.errors.password[0]}
+                    </p>
+                  )}
+                </Field>
+                <Field>
+                  <Button type="submit" className="w-full" disabled={isPending}>
+                    {isPending ? "Logging in..." : "Login"}
+                  </Button>
+                  <FieldDescription className="text-center">
+                    Don&apos;t have an account? <a href="/register">Sign up</a>
+                  </FieldDescription>
+                </Field>
+              </FieldGroup>
+            </form>
+          </div>
         </CardContent>
       </Card>
     </div>

@@ -13,10 +13,24 @@ export const auth = betterAuth({
     enabled: true,
     autoSignIn: false, // if you don't want automatic sign-in after registration
   },
+  baseURL: process.env.BETTER_AUTH_URL,
   socialProviders: {
-    github: {
-      clientId: process.env.GITHUB_CLIENT_ID as string,
-      clientSecret: process.env.GITHUB_CLIENT_SECRET as string,
+    google: {
+      clientId: process.env.GOOGLE_CLIENT_ID as string,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
+      // Request offline access to get refresh token
+      accessType: "offline",
+      // Always prompt for consent to ensure refresh token
+      prompt: "consent",
+      // Gmail API scopes
+      scope: [
+        "openid",
+        "email",
+        "profile",
+        "https://www.googleapis.com/auth/gmail.readonly",
+        "https://www.googleapis.com/auth/gmail.modify",
+        "https://www.googleapis.com/auth/gmail.labels",
+      ],
     },
   },
   session: {
