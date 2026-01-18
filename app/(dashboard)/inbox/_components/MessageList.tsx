@@ -4,7 +4,7 @@ import { MessageWithSummary } from "@/types/message";
 import { useInboxStore } from "@/stores/inbox-store";
 import { AnimatePresence, motion } from "motion/react";
 import { MessageItem } from "./MessageItem";
-import { Inbox, Search, Archive, Trash2, Star } from "lucide-react";
+import { Inbox, Search, Archive, Trash2, Star, LucideIcon } from "lucide-react";
 import { getEmptyDescription, getEmptyTitle, getFolderTitle } from "../utils";
 import EmptyState from "./EmptyState";
 import MessageListSkeleton from "./skeletons/MessageListSkeleton";
@@ -15,7 +15,7 @@ interface MessageListProps {
   onStarMessage: (id: string) => void;
 }
 
-const folderIcons: Record<string, React.ElementType> = {
+const folderIcons: Record<string, LucideIcon> = {
   inbox: Inbox,
   archive: Archive,
   trash: Trash2,

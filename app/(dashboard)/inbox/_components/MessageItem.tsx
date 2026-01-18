@@ -54,12 +54,18 @@ export function MessageItem({
     ? categoryIcons[message.category]
     : null;
 
-  const handleClick = (e: React.MouseEvent) => {
+  const handleClick = () => {
     if (isMultiSelectMode) {
-      e.preventDefault();
       onToggleCheck();
     } else {
       onSelect();
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      handleClick();
     }
   };
 
@@ -68,9 +74,25 @@ export function MessageItem({
     onStar();
   };
 
+  const handleStarKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      e.stopPropagation();
+      onStar();
+    }
+  };
+
   const handleCheckboxClick = (e: React.MouseEvent) => {
     e.stopPropagation();
     onToggleCheck();
+  };
+
+  const handleCheckboxKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      e.stopPropagation();
+      onToggleCheck();
+    }
   };
 
   return (
@@ -82,11 +104,16 @@ export function MessageItem({
       whileTap={{ scale: 0.995 }}
       transition={{ duration: 0.15 }}
     >
-      <button
+      {/* Using div with role="button" to avoid nested button issue */}
+      <div
+        role="button"
+        tabIndex={0}
         onClick={handleClick}
+        onKeyDown={handleKeyDown}
         className={cn(
-          "group relative flex w-full items-start gap-3 rounded-xl border p-4 text-left transition-all duration-200",
+          "group relative flex w-full cursor-pointer items-start gap-3 rounded-xl border p-4 text-left transition-all duration-200",
           "hover:shadow-lg hover:shadow-zinc-900/5 dark:hover:shadow-black/20",
+          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500 focus-visible:ring-offset-2",
           isSelected
             ? "border-violet-300 bg-violet-50/80 shadow-md shadow-violet-500/10 dark:border-violet-700 dark:bg-violet-950/30"
             : "border-zinc-200/60 bg-white hover:border-zinc-300 dark:border-zinc-800/60 dark:bg-zinc-900/50 dark:hover:border-zinc-700",
@@ -97,9 +124,15 @@ export function MessageItem({
         <div className="relative shrink-0">
           {/* Checkbox overlay on hover or multi-select mode */}
           <div
+            role="checkbox"
+            aria-checked={isChecked}
+            aria-label={`Select email from ${message.from.name || message.from.email}`}
+            tabIndex={isMultiSelectMode || isChecked ? 0 : -1}
             onClick={handleCheckboxClick}
+            onKeyDown={handleCheckboxKeyDown}
             className={cn(
               "absolute inset-0 flex items-center justify-center rounded-full transition-opacity",
+              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500",
               isMultiSelectMode || isChecked
                 ? "opacity-100"
                 : "opacity-0 group-hover:opacity-100",
@@ -119,6 +152,7 @@ export function MessageItem({
 
           {/* Avatar */}
           <div
+            aria-hidden="true"
             className={cn(
               "flex h-9 w-9 items-center justify-center rounded-full text-sm font-semibold transition-opacity",
               isMultiSelectMode || isChecked
@@ -151,6 +185,7 @@ export function MessageItem({
               {/* Priority indicator */}
               {message.priority && message.priority !== "normal" && (
                 <span
+                  aria-label={`Priority: ${message.priority}`}
                   className={cn(
                     "h-2 w-2 rounded-full shrink-0",
                     priorityColors[message.priority],
@@ -218,11 +253,17 @@ export function MessageItem({
 
         {/* Right actions */}
         <div className="flex flex-col items-center gap-2 shrink-0">
-          {/* Star button */}
-          <button
+          {/* Star button - using div with role to avoid nested button */}
+          <div
+            role="button"
+            tabIndex={0}
+            aria-label={message.isStarred ? "Unstar email" : "Star email"}
+            aria-pressed={message.isStarred}
             onClick={handleStarClick}
+            onKeyDown={handleStarKeyDown}
             className={cn(
-              "rounded-full p-1.5 transition-all",
+              "rounded-full p-1.5 transition-all cursor-pointer",
+              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500",
               message.isStarred
                 ? "text-amber-500 hover:text-amber-600"
                 : "text-zinc-300 hover:text-amber-500 dark:text-zinc-600 dark:hover:text-amber-500",
@@ -231,19 +272,22 @@ export function MessageItem({
             <Star
               className={cn("h-4 w-4", message.isStarred && "fill-current")}
             />
-          </button>
+          </div>
 
           {/* Attachment indicator */}
           {message.hasAttachments && (
-            <Paperclip className="h-4 w-4 text-zinc-400 dark:text-zinc-500" />
+            <Paperclip
+              aria-label="Has attachments"
+              className="h-4 w-4 text-zinc-400 dark:text-zinc-500"
+            />
           )}
 
           {/* Urgent indicator */}
           {message.priority === "urgent" && (
-            <AlertCircle className="h-4 w-4 text-red-500" />
+            <AlertCircle aria-label="Urgent" className="h-4 w-4 text-red-500" />
           )}
         </div>
-      </button>
+      </div>
     </motion.div>
   );
 }

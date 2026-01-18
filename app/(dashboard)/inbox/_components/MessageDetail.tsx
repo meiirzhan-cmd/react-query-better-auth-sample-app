@@ -20,7 +20,7 @@ import {
   Forward,
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
-import { format } from "path";
+import { format } from "date-fns";
 import React, { useState } from "react";
 import { getAvatarColor, formatFileSize } from "../utils";
 import MessageDetailSkeleton from "./skeletons/MessageDetailSkeleton";
@@ -185,7 +185,10 @@ const MessageDetail = ({
                 </p>
               </div>
               <p className="shrink-0 text-sm text-zinc-500 dark:text-zinc-400">
-                {format(new Date(message.receivedAt))}
+                {format(
+                  new Date(message.receivedAt),
+                  "MMM d, yyyy 'at' h:mm a",
+                )}
               </p>
             </div>
 

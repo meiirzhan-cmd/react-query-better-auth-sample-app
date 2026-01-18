@@ -3,6 +3,8 @@ import React from "react";
 import { Skeleton } from "./_components/skeletons/Skeleton";
 import MessageDetailSkeleton from "./_components/skeletons/MessageDetailSkeleton";
 
+const SKELETON_ITEMS = [0, 1, 2, 3, 4, 5, 6, 7] as const;
+
 const loading = () => {
   return (
     <div className="flex h-full">
@@ -27,8 +29,11 @@ const loading = () => {
 
         {/* Message list skeleton */}
         <div className="space-y-2 p-4">
-          {Array.from({ length: 8 }).map((_, index) => (
-            <MessageSkeletonItem key={index} delay={index * 0.05} />
+          {SKELETON_ITEMS.map((item) => (
+            <MessageSkeletonItem
+              key={`msg-skeleton-${item}`}
+              delay={item * 0.05}
+            />
           ))}
         </div>
       </div>

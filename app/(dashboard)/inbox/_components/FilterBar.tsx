@@ -160,7 +160,9 @@ export function FilterBar() {
                               <item.icon
                                 className="h-4 w-4"
                                 style={
-                                  item.color ? { color: item.color } : undefined
+                                  "color" in item && item.color
+                                    ? { color: item.color }
+                                    : undefined
                                 }
                               />
                             )}

@@ -13,7 +13,7 @@ export function getAvatarColor(email: string): string {
 
   const hash = email
     .split("")
-    .reduce((acc, char) => acc + char.charCodeAt(0), 0);
+    .reduce((acc, char) => acc + (char.codePointAt(0) ?? 0), 0);
   return colors[hash % colors.length];
 }
 
