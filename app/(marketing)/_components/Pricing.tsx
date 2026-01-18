@@ -5,7 +5,7 @@ import { useRef } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Check, X, Sparkles, Building2 } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn } from "@/lib/utils/utils";
 import { itemVariants } from "../motion";
 import { plans } from "../data";
 

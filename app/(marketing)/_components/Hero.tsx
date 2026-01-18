@@ -12,7 +12,7 @@ import {
 } from "lucide-react";
 import { motion } from "motion/react";
 import { itemVariants } from "../motion";
-import { cn } from "@/lib/utils";
+import { cn } from "@/lib/utils/utils";
 
 const containerVariants = {
   hidden: { opacity: 0 },

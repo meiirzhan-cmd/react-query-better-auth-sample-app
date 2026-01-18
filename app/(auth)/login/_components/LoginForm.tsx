@@ -15,7 +15,7 @@ import {
   FieldDescription,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { cn } from "@/lib/utils";
+import { cn } from "@/lib/utils/utils";
 import { useActionState, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import login from "../action";
