@@ -31,6 +31,9 @@ export interface SidebarProps {
   user: User;
 }
 
+const SIDEBAR_WIDTH = 256;
+const SIDEBAR_COLLAPSED_WIDTH = 64;
+
 const Sidebar = ({ user }: Readonly<SidebarProps>) => {
   const pathname = usePathname();
   const {
@@ -57,38 +60,45 @@ const Sidebar = ({ user }: Readonly<SidebarProps>) => {
     <>
       {/* Mobile Overlay */}
       {isMobileSidebarOpen && (
-        <button
-          className="fixed inset-0 z-40 bg-black/50 lg:hidden"
+        <div
+          className="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm lg:hidden"
           onClick={() => setMobileSidebarOpen(false)}
+          aria-hidden="true"
         />
       )}
+
+      {/* Sidebar Spacer - prevents layout shift on desktop */}
+      <div
+        className="hidden lg:block shrink-0 transition-[width] duration-300 ease-in-out"
+        style={{ width: isCollapsed ? SIDEBAR_COLLAPSED_WIDTH : SIDEBAR_WIDTH }}
+      />
 
       {/* Sidebar */}
       <aside
         className={cn(
-          "flex h-full flex-col border-r border-zinc-200 bg-white transition-all duration-300 dark:border-zinc-800 dark:bg-zinc-900",
-          isCollapsed ? "w-16" : "w-64",
-          // Mobile positioning
-          "fixed left-0 top-0 z-50 lg:relative",
-          isMobileSidebarOpen
-            ? "translate-x-0"
-            : "-translate-x-full lg:translate-x-0",
+          "fixed left-0 top-0 z-50 flex h-full flex-col",
+          "border-r border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900",
+          "transition-all duration-300 ease-in-out",
+          // Mobile: slide in/out
+          "lg:translate-x-0",
+          isMobileSidebarOpen ? "translate-x-0" : "-translate-x-full",
         )}
+        style={{ width: isCollapsed ? SIDEBAR_COLLAPSED_WIDTH : SIDEBAR_WIDTH }}
       >
         {/* Logo & Toggle */}
         <div
           className={cn(
-            "flex h-14 items-center border-b border-zinc-200 dark:border-zinc-800",
+            "flex h-14 items-center border-b border-zinc-200 dark:border-zinc-800 shrink-0",
             isCollapsed ? "justify-center px-2" : "justify-between px-4",
           )}
         >
           {!isCollapsed && (
             <Link
               href="/inbox"
-              className="flex items-center gap-2"
+              className="flex items-center gap-2 group"
               onClick={handleNavClick}
             >
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-linear-to-br from-violet-600 to-blue-600">
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-linear-to-br from-violet-600 to-blue-600 shadow-lg shadow-violet-500/20 group-hover:shadow-violet-500/30 transition-shadow">
                 <Sparkles className="h-4 w-4 text-white" />
               </div>
               <span className="font-semibold text-zinc-900 dark:text-white">
@@ -114,11 +124,13 @@ const Sidebar = ({ user }: Readonly<SidebarProps>) => {
         </div>
 
         {/* Compose Button */}
-        <div className={cn("p-3", isCollapsed && "px-2")}>
+        <div className={cn("p-3 shrink-0", isCollapsed && "px-2")}>
           <Button
             onClick={() => openCompose({ mode: "new" })}
             className={cn(
-              "bg-linear-to-r from-violet-600 to-blue-600 text-white shadow-lg shadow-violet-500/25 hover:shadow-xl hover:shadow-violet-500/30",
+              "bg-linear-to-r from-violet-600 to-blue-600 text-white",
+              "shadow-lg shadow-violet-500/25 hover:shadow-xl hover:shadow-violet-500/30",
+              "transition-all duration-200",
               isCollapsed ? "w-full justify-center px-0" : "w-full",
             )}
           >
@@ -128,7 +140,7 @@ const Sidebar = ({ user }: Readonly<SidebarProps>) => {
         </div>
 
         {/* Navigation */}
-        <nav className="flex-1 overflow-y-auto px-3">
+        <nav className="flex-1 overflow-y-auto px-3 py-2">
           {/* Main Navigation */}
           <div className="space-y-1">
             {mainNavItems.map((item) => (
@@ -205,10 +217,10 @@ const Sidebar = ({ user }: Readonly<SidebarProps>) => {
 
         {/* Digest Preview */}
         {!isCollapsed && (
-          <div className="border-t border-zinc-200 p-4 dark:border-zinc-800">
+          <div className="border-t border-zinc-200 p-4 shrink-0 dark:border-zinc-800">
             <Link
               href="/digest"
-              className="block rounded-lg border border-zinc-200 bg-linear-to-br from-violet-50 to-blue-50 p-3 transition-all hover:border-violet-300 dark:border-zinc-700 dark:from-violet-950/50 dark:to-blue-950/50 dark:hover:border-violet-700"
+              className="block rounded-lg border border-zinc-200 bg-linear-to-br from-violet-50 to-blue-50 p-3 transition-all hover:border-violet-300 hover:shadow-md dark:border-zinc-700 dark:from-violet-950/50 dark:to-blue-950/50 dark:hover:border-violet-700"
               onClick={handleNavClick}
             >
               <div className="flex items-center gap-2 text-sm font-medium text-zinc-900 dark:text-white">
@@ -225,7 +237,7 @@ const Sidebar = ({ user }: Readonly<SidebarProps>) => {
         {/* User & Settings */}
         <div
           className={cn(
-            "border-t border-zinc-200 dark:border-zinc-800",
+            "border-t border-zinc-200 dark:border-zinc-800 shrink-0",
             isCollapsed ? "p-2" : "p-4",
           )}
         >
@@ -242,16 +254,21 @@ const Sidebar = ({ user }: Readonly<SidebarProps>) => {
             </div>
           ) : (
             <div className="flex items-center gap-3">
-              <div className="flex h-9 w-9 items-center justify-center rounded-full bg-linear-to-br from-violet-600 to-blue-600 text-sm font-medium text-white">
+              <div className="flex h-9 w-9 items-center justify-center rounded-full bg-linear-to-br from-violet-600 to-blue-600 text-sm font-medium text-white shrink-0">
                 {user.name.charAt(0).toUpperCase()}
               </div>
-              <div className="flex-1 overflow-hidden">
+              <div className="flex-1 min-w-0">
                 <p className="truncate text-sm font-medium text-zinc-900 dark:text-white">
                   {user.name}
                 </p>
                 <p className="truncate text-xs text-zinc-500">{user.email}</p>
               </div>
-              <Button variant="ghost" size="icon-sm" asChild>
+              <Button
+                variant="ghost"
+                size="icon-sm"
+                asChild
+                className="shrink-0"
+              >
                 <Link href="/settings">
                   <Settings className="h-4 w-4" />
                 </Link>

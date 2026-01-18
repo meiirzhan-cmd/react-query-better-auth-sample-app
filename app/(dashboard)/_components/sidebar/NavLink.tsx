@@ -1,5 +1,7 @@
-import { Link } from "lucide-react";
+import Link from "next/link";
 import { NavItem } from "./type";
+import React from "react";
+import { cn } from "@/lib/utils/utils";
 
 interface NavLinkProps {
   item: NavItem;
@@ -7,9 +9,6 @@ interface NavLinkProps {
   isCollapsed: boolean;
   onClick?: () => void;
 }
-
-import React from "react";
-import { cn } from "@/lib/utils/utils";
 
 const NavLink = ({ item, isActive, isCollapsed, onClick }: NavLinkProps) => {
   return (

@@ -16,17 +16,17 @@ export default async function DashboardLayout({ children }: Readonly<Props>) {
   }
 
   return (
-    <div className="flex h-screen overflow-hidden bg-zinc-50 dark:bg-zinc-950">
+    <div className="flex h-screen bg-zinc-50 dark:bg-zinc-950">
       {/* Sidebar */}
       <Sidebar user={session.user} />
 
       {/* Main content area */}
-      <div className="flex flex-1 flex-col overflow-hidden">
+      <div className="flex flex-1 flex-col min-w-0 overflow-hidden">
         {/* Header */}
         <Header user={session.user} />
 
         {/* Main content */}
-        <main className="flex-1 overflow-hidden">{children}</main>
+        <main className="flex-1 overflow-auto">{children}</main>
       </div>
 
       {/* Command Palette (global) */}

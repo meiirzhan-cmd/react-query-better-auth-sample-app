@@ -14,7 +14,6 @@ import {
   Bell,
   Sun,
   Moon,
-  Laptop,
   User,
   Settings,
   Keyboard,
@@ -65,7 +64,7 @@ export function Header({ user }: Readonly<HeaderProps>) {
   };
 
   return (
-    <header className="flex h-14 items-center justify-between border-b border-zinc-200 bg-white px-4 dark:border-zinc-800 dark:bg-zinc-900">
+    <header className="flex h-14 items-center justify-between border-b border-zinc-200 bg-white px-4 dark:border-zinc-800 dark:bg-zinc-900 shrink-0">
       {/* Left Section */}
       <div className="flex items-center gap-4">
         {/* Mobile Menu Button */}
@@ -144,9 +143,10 @@ export function Header({ user }: Readonly<HeaderProps>) {
           {/* Notifications Dropdown */}
           {isNotificationsOpen && (
             <>
-              <button
+              <div
                 className="fixed inset-0 z-40"
                 onClick={() => setIsNotificationsOpen(false)}
+                aria-hidden="true"
               />
               <div className="absolute right-0 top-full z-50 mt-2 w-80 rounded-lg border border-zinc-200 bg-white p-4 shadow-lg dark:border-zinc-700 dark:bg-zinc-800">
                 <h3 className="font-semibold text-zinc-900 dark:text-white">
@@ -194,9 +194,10 @@ export function Header({ user }: Readonly<HeaderProps>) {
           {/* Profile Dropdown */}
           {isProfileOpen && (
             <>
-              <button
+              <div
                 className="fixed inset-0 z-40"
                 onClick={() => setIsProfileOpen(false)}
+                aria-hidden="true"
               />
               <div className="absolute right-0 top-full z-50 mt-2 w-56 rounded-lg border border-zinc-200 bg-white py-1 shadow-lg dark:border-zinc-700 dark:bg-zinc-800">
                 {/* User Info */}
@@ -256,6 +257,7 @@ export function Header({ user }: Readonly<HeaderProps>) {
                 {/* Logout */}
                 <div className="border-t border-zinc-200 py-1 dark:border-zinc-700">
                   <button
+                    type="button"
                     onClick={handleLogout}
                     className="flex w-full items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-950/50"
                   >
