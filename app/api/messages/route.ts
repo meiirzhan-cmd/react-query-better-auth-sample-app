@@ -8,8 +8,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSession } from "@/lib/session";
 import { db } from "@/lib/libsql";
-import { message, emailConnection } from "@/schemas";
-import { eq, and, desc, asc, sql, or, like } from "drizzle-orm";
+import {
+  message,
+  emailConnection,
+  messageSummary,
+  messageLabel,
+  label,
+} from "@/schemas";
+import { eq, and, desc, asc, sql, or, like, inArray } from "drizzle-orm";
 import { z } from "zod";
 
 // -----------------------------------------------------------------------------
@@ -94,11 +100,12 @@ export async function GET(request: NextRequest) {
     if (params.folder) {
       switch (params.folder) {
         case "inbox":
+          // Show unread and read messages (not archived, trashed, or spam)
           conditions.push(
-            eq(message.status, "unread"),
-            eq(message.isSent, false),
-            eq(message.isDraft, false),
+            or(eq(message.status, "unread"), eq(message.status, "read"))!,
           );
+          conditions.push(eq(message.isSent, false));
+          conditions.push(eq(message.isDraft, false));
           break;
         case "sent":
           conditions.push(eq(message.isSent, true));
@@ -117,6 +124,22 @@ export async function GET(request: NextRequest) {
           break;
         case "spam":
           conditions.push(eq(message.status, "spam"));
+          break;
+        // Smart folders
+        case "urgent":
+          conditions.push(eq(message.priority, "urgent"));
+          break;
+        case "needs-reply":
+          conditions.push(eq(message.category, "needs_reply"));
+          break;
+        case "fyi":
+          conditions.push(eq(message.category, "fyi"));
+          break;
+        case "newsletter":
+          conditions.push(eq(message.category, "newsletter"));
+          break;
+        case "promotional":
+          conditions.push(eq(message.category, "promotional"));
           break;
       }
     }
@@ -156,12 +179,78 @@ export async function GET(request: NextRequest) {
         .where(and(...conditions)),
     ]);
 
+    // Fetch summaries for these messages
+    const messageIds = messages.map((m) => m.id);
+    let summariesMap: Map<string, typeof messageSummary.$inferSelect> =
+      new Map();
+    const labelsMap: Map<
+      string,
+      Array<{
+        labelId: string;
+        labelName: string;
+        labelColor: string;
+        source: string;
+        assignedAt: Date;
+      }>
+    > = new Map();
+
+    if (messageIds.length > 0) {
+      // Fetch summaries
+      const summaries = await db
+        .select()
+        .from(messageSummary)
+        .where(inArray(messageSummary.messageId, messageIds));
+
+      summariesMap = new Map(summaries.map((s) => [s.messageId, s]));
+
+      // Fetch labels with their details
+      const messageLabelsWithDetails = await db
+        .select({
+          messageId: messageLabel.messageId,
+          labelId: messageLabel.labelId,
+          source: messageLabel.source,
+          assignedAt: messageLabel.assignedAt,
+          labelName: label.name,
+          labelColor: label.color,
+        })
+        .from(messageLabel)
+        .innerJoin(label, eq(messageLabel.labelId, label.id))
+        .where(inArray(messageLabel.messageId, messageIds));
+
+      // Group labels by message
+      for (const ml of messageLabelsWithDetails) {
+        const existing = labelsMap.get(ml.messageId) || [];
+        existing.push({
+          labelId: ml.labelId,
+          labelName: ml.labelName,
+          labelColor: ml.labelColor,
+          source: ml.source,
+          assignedAt: ml.assignedAt,
+        });
+        labelsMap.set(ml.messageId, existing);
+      }
+    }
+
+    // Combine messages with summaries and labels
+    const messagesWithSummaries = messages.map((msg) => ({
+      ...msg,
+      summary: summariesMap.get(msg.id) || null,
+      labels:
+        labelsMap.get(msg.id)?.map((l) => ({
+          labelId: l.labelId,
+          labelName: l.labelName,
+          labelColor: l.labelColor,
+          source: l.source as "user" | "ai" | "rule" | "sync",
+          assignedAt: l.assignedAt.toISOString(),
+        })) || [],
+    }));
+
     const totalCount = countResult[0]?.count || 0;
     const totalPages = Math.ceil(totalCount / params.pageSize);
 
     return NextResponse.json({
       success: true,
-      data: messages,
+      data: messagesWithSummaries,
       pagination: {
         page: params.page,
         pageSize: params.pageSize,
@@ -192,12 +281,14 @@ export async function GET(request: NextRequest) {
 // -----------------------------------------------------------------------------
 const sendMessageSchema = z.object({
   connectionId: z.string(),
-  to: z.array(z.object({ name: z.string().optional(), email: z.email() })),
+  to: z.array(
+    z.object({ name: z.string().optional(), email: z.string().email() }),
+  ),
   cc: z
-    .array(z.object({ name: z.string().optional(), email: z.email() }))
+    .array(z.object({ name: z.string().optional(), email: z.string().email() }))
     .optional(),
   bcc: z
-    .array(z.object({ name: z.string().optional(), email: z.email() }))
+    .array(z.object({ name: z.string().optional(), email: z.string().email() }))
     .optional(),
   subject: z.string(),
   body: z.string(),

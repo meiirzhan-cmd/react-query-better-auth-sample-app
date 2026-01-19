@@ -37,7 +37,8 @@ export const connectionKeys = {
 // API Functions
 // -----------------------------------------------------------------------------
 async function fetchConnections(): Promise<ConnectionsResponse> {
-  const response = await fetch("/api/connections");
+  // Use the correct API endpoint
+  const response = await fetch("/api/messages/connections");
 
   if (!response.ok) {
     const error = await response.json();
@@ -48,7 +49,7 @@ async function fetchConnections(): Promise<ConnectionsResponse> {
 }
 
 async function disconnectConnection(id: string): Promise<{ success: boolean }> {
-  const response = await fetch(`/api/connections/${id}`, {
+  const response = await fetch(`/api/messages/connections/${id}`, {
     method: "DELETE",
   });
 
@@ -64,7 +65,7 @@ async function updateConnection(
   id: string,
   data: Partial<Pick<EmailConnection, "isDefault" | "syncEnabled">>,
 ): Promise<ConnectionResponse> {
-  const response = await fetch(`/api/connections/${id}`, {
+  const response = await fetch(`/api/messages/connections/${id}`, {
     method: "PATCH",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data),
@@ -90,6 +91,7 @@ export function useConnections() {
     queryKey: connectionKeys.lists(),
     queryFn: fetchConnections,
     staleTime: 5 * 60 * 1000, // 5 minutes
+    retry: 1,
   });
 }
 
@@ -187,8 +189,8 @@ export function useToggleSync() {
  */
 export function connectGmail(redirectPath?: string) {
   const url = redirectPath
-    ? `/api/connections/gmail/connect?redirect=${encodeURIComponent(redirectPath)}`
-    : "/api/connections/gmail/connect";
+    ? `/api/messages/connections/gmail/connect?redirect=${encodeURIComponent(redirectPath)}`
+    : "/api/messages/connections/gmail/connect";
 
   window.location.href = url;
 }
@@ -198,8 +200,8 @@ export function connectGmail(redirectPath?: string) {
  */
 export function connectOutlook(redirectPath?: string) {
   const url = redirectPath
-    ? `/api/connections/outlook/connect?redirect=${encodeURIComponent(redirectPath)}`
-    : "/api/connections/outlook/connect";
+    ? `/api/messages/connections/outlook/connect?redirect=${encodeURIComponent(redirectPath)}`
+    : "/api/messages/connections/outlook/connect";
 
   window.location.href = url;
 }
