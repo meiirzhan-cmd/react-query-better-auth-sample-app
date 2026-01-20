@@ -1,7 +1,23 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  compiler: {
+    reactRemoveProperties: true,
+  },
+  logging: {
+    fetches: {
+      fullUrl: true,
+    },
+  },
+  experimental: {
+    optimizePackageImports: ["lucide-react"],
+  },
 };
 
-export default nextConfig;
+// const withBundleAnalyzer = require("@next/bundle-analyzer")({
+//   enabled: true,
+// });
+
+// module.exports = withBundleAnalyzer(nextConfig);
+
+// "build": "next build --webpack",
