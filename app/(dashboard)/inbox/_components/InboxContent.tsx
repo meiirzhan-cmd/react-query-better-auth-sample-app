@@ -4,8 +4,7 @@ import { cn } from "@/lib/utils/utils";
 import { useComposeStore } from "@/stores/compose-store";
 import { useInboxStore } from "@/stores/inbox-store";
 import { MessageWithSummary } from "@/types/message";
-import { AnimatePresence, motion } from "motion/react";
-import React, { useCallback, useEffect } from "react";
+import React, { useCallback, useEffect, useState, useRef } from "react";
 import FilterBar from "./FilterBar";
 import MessageActions from "./MessageActions";
 import MessageDetail from "./MessageDetail";
@@ -22,6 +21,9 @@ import { RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const InboxContent = () => {
+  const [messageListWidth, setMessageListWidth] = useState(420);
+  const [isResizing, setIsResizing] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
   const {
     selectedMessageId,
     selectMessage,
@@ -183,6 +185,39 @@ const InboxContent = () => {
     syncMessages.mutate({});
   }, [syncMessages]);
 
+  // Handle resize
+  const handleMouseDown = useCallback((e: React.MouseEvent) => {
+    e.preventDefault();
+    setIsResizing(true);
+  }, []);
+
+  useEffect(() => {
+    if (!isResizing) return;
+
+    const handleMouseMove = (e: MouseEvent) => {
+      if (!containerRef.current) return;
+
+      const containerRect = containerRef.current.getBoundingClientRect();
+      const newWidth = e.clientX - containerRect.left;
+
+      // Constrain width between 300px and 1200px
+      const clampedWidth = Math.min(Math.max(newWidth, 300), 1200);
+      setMessageListWidth(clampedWidth);
+    };
+
+    const handleMouseUp = () => {
+      setIsResizing(false);
+    };
+
+    document.addEventListener("mousemove", handleMouseMove);
+    document.addEventListener("mouseup", handleMouseUp);
+
+    return () => {
+      document.removeEventListener("mousemove", handleMouseMove);
+      document.removeEventListener("mouseup", handleMouseUp);
+    };
+  }, [isResizing]);
+
   // Show connect prompt if no connection
   if (!isLoadingConnection && !defaultConnection) {
     return (
@@ -230,7 +265,10 @@ const InboxContent = () => {
   }
 
   return (
-    <div className="relative flex h-full overflow-hidden bg-zinc-50 dark:bg-zinc-950">
+    <div
+      ref={containerRef}
+      className="relative flex h-full overflow-hidden bg-zinc-50 dark:bg-zinc-950"
+    >
       <MessageActions
         totalCount={messages.length}
         onArchive={handleBulkArchive}
@@ -244,10 +282,11 @@ const InboxContent = () => {
       <div
         className={cn(
           "flex flex-col border-r border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900",
-          selectedMessageId
-            ? "hidden w-full lg:flex lg:w-420px"
-            : "w-full lg:w-420px",
+          selectedMessageId ? "hidden lg:flex" : "w-full",
         )}
+        style={{
+          width: selectedMessageId ? `${messageListWidth}px` : "100%",
+        }}
       >
         {/* Sync Button */}
         <div className="flex items-center justify-between border-b border-zinc-200 bg-white px-4 py-2 dark:border-zinc-800 dark:bg-zinc-900">
@@ -281,18 +320,23 @@ const InboxContent = () => {
         </div>
       </div>
 
-      <AnimatePresence mode="wait">
-        <motion.div
-          key={selectedMessageId || "empty"}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.15 }}
+      {/* Resize Handle - Desktop Only */}
+      {selectedMessageId && (
+        <button
+          type="button"
+          aria-label="Resize message list"
+          onMouseDown={handleMouseDown}
           className={cn(
-            "flex-1 bg-white dark:bg-zinc-900",
-            selectedMessageId ? "flex" : "hidden lg:flex",
+            "hidden lg:block relative w-1 bg-zinc-200 dark:bg-zinc-800 cursor-col-resize hover:bg-violet-400 dark:hover:bg-violet-600 transition-colors group focus:outline-none focus:ring-2 focus:ring-violet-500",
+            isResizing && "bg-violet-500 dark:bg-violet-500",
           )}
         >
+          <span className="absolute inset-y-0 -left-1 -right-1" />
+        </button>
+      )}
+
+      {selectedMessageId && (
+        <div className="flex flex-1 flex-col bg-white dark:bg-zinc-900">
           <MessageDetail
             message={selectedMessage}
             isLoading={false}
@@ -302,8 +346,8 @@ const InboxContent = () => {
             onStar={handleStarMessage}
             onReply={handleReply}
           />
-        </motion.div>
-      </AnimatePresence>
+        </div>
+      )}
     </div>
   );
 };

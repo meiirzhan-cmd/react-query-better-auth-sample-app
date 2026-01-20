@@ -112,6 +112,7 @@ export async function POST(request: NextRequest) {
         connection.accessToken,
         connection.refreshToken || undefined,
       );
+
       const externalIds = connectionMessages
         .map((m) => m.externalId)
         .filter((id): id is string => Boolean(id));

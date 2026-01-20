@@ -14,5 +14,9 @@ export default async function InboxPage() {
     redirect("/login");
   }
 
-  return <InboxContent />;
+  return (
+    <div className="flex h-full flex-col">
+      <InboxContent />
+    </div>
+  );
 }

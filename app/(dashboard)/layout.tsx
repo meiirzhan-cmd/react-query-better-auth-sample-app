@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { Header } from "./_components/Header";
 import { CommandPalette } from "./_components/CommandPalette";
 import Sidebar from "./_components/Sidebar";
+import { ComposeWindow } from "./_components/ComposeWindow";
 
 interface Props {
   children: React.ReactNode;
@@ -25,12 +26,15 @@ export default async function DashboardLayout({ children }: Readonly<Props>) {
         {/* Header */}
         <Header user={session.user} />
 
-        {/* Main content */}
-        <main className="flex-1 overflow-auto">{children}</main>
+        {/* Main content - CHANGED: removed overflow-auto, added flex */}
+        <main className="flex flex-1 flex-col overflow-hidden">{children}</main>
       </div>
 
       {/* Command Palette (global) */}
       <CommandPalette />
+
+      {/* Compose Window (global) */}
+      <ComposeWindow />
     </div>
   );
 }

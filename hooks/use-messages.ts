@@ -207,6 +207,35 @@ async function syncMessages(
   return response.json();
 }
 
+interface SendMessageParams {
+  connectionId: string;
+  to: { name?: string; email: string }[];
+  cc?: { name?: string; email: string }[];
+  bcc?: { name?: string; email: string }[];
+  subject: string;
+  body: string;
+  bodyHtml?: string;
+  threadId?: string;
+  inReplyTo?: string;
+}
+
+async function sendMessage(
+  params: SendMessageParams,
+): Promise<MessageResponse> {
+  const response = await fetch("/api/messages", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(params),
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.error || "Failed to send message");
+  }
+
+  return response.json();
+}
+
 // -----------------------------------------------------------------------------
 // Hooks
 // -----------------------------------------------------------------------------
@@ -447,4 +476,19 @@ export function usePrefetchMessage(
       staleTime: 60 * 1000,
     });
   };
+}
+
+/**
+ * Send message mutation
+ */
+export function useSendMessage() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (params: SendMessageParams) => sendMessage(params),
+    onSuccess: () => {
+      // Invalidate messages list to show sent message
+      queryClient.invalidateQueries({ queryKey: messageKeys.lists() });
+    },
+  });
 }

@@ -14,6 +14,7 @@ import {
   messageSummary,
   messageLabel,
   label,
+  thread,
 } from "@/schemas";
 import { eq, and, desc, asc, sql, or, like, inArray } from "drizzle-orm";
 import { z } from "zod";
@@ -357,6 +358,47 @@ export async function POST(request: NextRequest) {
     // Parse the sent message
     const parsed = parseGmailMessage(sentMessage);
 
+    // Check if thread exists, create if not
+    let dbThreadId: string | null = null;
+    if (parsed.threadId) {
+      // Try to find existing thread
+      const [existingThread] = await db
+        .select()
+        .from(thread)
+        .where(
+          and(
+            eq(thread.userId, session.user.id),
+            eq(thread.externalId, parsed.threadId),
+          ),
+        )
+        .limit(1);
+
+      if (existingThread) {
+        dbThreadId = existingThread.id;
+      } else {
+        // Create new thread
+        const [newThread] = await db
+          .insert(thread)
+          .values({
+            userId: session.user.id,
+            connectionId: connection.id,
+            externalId: parsed.threadId,
+            subject: data.subject,
+            snippet: parsed.snippet,
+            messageCount: 1,
+            hasUnread: false,
+            isStarred: false,
+            isArchived: false,
+            isTrashed: false,
+            isSpam: false,
+            latestMessageAt: new Date(),
+          })
+          .returning();
+
+        dbThreadId = newThread.id;
+      }
+    }
+
     // Store in database
     const [newMessage] = await db
       .insert(message)
@@ -364,7 +406,8 @@ export async function POST(request: NextRequest) {
         userId: session.user.id,
         connectionId: connection.id,
         externalId: parsed.externalId,
-        threadId: parsed.threadId,
+        threadId: dbThreadId,
+        externalThreadId: parsed.threadId,
         subject: parsed.subject,
         from: { email: session.user.email, name: session.user.name },
         to: data.to,

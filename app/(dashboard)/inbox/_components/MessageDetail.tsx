@@ -55,7 +55,7 @@ const MessageDetail = ({
   // No message selected
   if (!message) {
     return (
-      <div className="flex h-full flex-col items-center justify-center p-8 text-center">
+      <div className="flex  h-full flex-col items-center justify-center p-8 text-center">
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -84,7 +84,7 @@ const MessageDetail = ({
       animate={{ opacity: 1, x: 0 }}
       exit={{ opacity: 0, x: -20 }}
       transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
-      className="flex h-full flex-col"
+      className="flex h-full w-full flex-col"
     >
       {/* Header */}
       <div className="shrink-0 border-b border-zinc-200 p-4 dark:border-zinc-800">
